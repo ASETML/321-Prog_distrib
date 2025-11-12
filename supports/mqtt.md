@@ -8,7 +8,7 @@ communiquent via un serveur central appelé "broker".
 
 ![](./assets/mqtt.jpg)
 
-Le protocole MQTT est particulièrement adapté aux environnements avec une bande passante limitée ou des connexions instables, car il consomme peu de ressources et peut fonctionner avec un minimum de données.  
+Le protocole MQTT est particulièrement adapté aux environnements avec une bande passante limitée ou des connexions instables, car il consomme peu de ressources et peut fonctionner avec un minimum de données.
 
 Dans ce modèle, les clients (appareils) ne communiquent pas directement entre eux. Ils se connectent au **broker** en TCP/IP et publient des messages sur des **topics** (sujets) spécifiques. D'autres clients peuvent alors s'abonner à ces topics pour recevoir les messages. Par exemple, un capteur de température peut publier des données sur le topic "moteur/température", et tous les appareils abonnés à ce topic recevront les mises à jour.
 
@@ -81,6 +81,29 @@ Lorsqu'un client perd sa connexion au broker, il peut décider de continuer à f
 de nouveaux messages à émettre. Ces messages sont stockés localement dans une queue, ils seront envoyés dans le bon
 ordre au moment où le client se sera reconnecté au broker.
 
-### NonLocal
-Par défaut, un client qui envoie un message le reçoit aussi, à moins 
+### NoLocal
+Par défaut, un client qui envoie un message le reçoit aussi (s’il est abonné au topic correspondant).
+‘NoLocal’ empêche le serveur MQTT de renvoyer un message au client qui l'a publié. Quand ‘NoLocal‘ est activé (valeur 1), le serveur ne transmettra pas les messages au client qui en est l'origine.
 
+``` csharp
+var mqttSubscribeOptions = mqttFactory.CreateSubscribeOptionsBuilder()
+    .WithTopicFilter(t => t
+        .WithTopic("mon/topic")
+        .WithNoLocal())  // Active l'option NoLocal
+    .Build();
+
+await mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
+
+```
+
+### Cas d'usage typique
+
+Cette option est particulièrement utile dans les scénarios de pont (bridging) entre brokers MQTT, pour éviter des boucles infinies de messages lorsqu’un broker se connecte à un autre en tant que client...
+
+Exemple concret :
+
+    Un client publie sur le topic sensors/temperature
+    Ce même client s'abonne à sensors/temperature avec NoLocal activé
+    Résultat: Le client ne recevra PAS ses propres messages, mais recevra bien ceux des autres clients
+
+> Note importante: NoLocal est une fonctionnalité MQTT 5.0

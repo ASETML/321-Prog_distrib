@@ -93,15 +93,15 @@ rapides à lire et écrire que les formats texte.
 
 Il y a plusieurs raisons pour lesquelles on pourrait choisir de ne pas utiliser la sérialisation en texte (JSON, XML) :
 
-* La sérialisation de texte prend plus de place en mémoire que la sérialisation binaire, ce qui peut être un problème si
+- La sérialisation de texte prend plus de place en mémoire que la sérialisation binaire, ce qui peut être un problème si
   vous avez besoin de stocker ou de transmettre de grandes quantités de données.
-* La sérialisation de texte peut être plus lente à sérialiser et désérialiser que la sérialisation binaire, ce qui peut
+- La sérialisation de texte peut être plus lente à sérialiser et désérialiser que la sérialisation binaire, ce qui peut
   être un problème si vous avez besoin de traiter rapidement de grandes quantités de données.
-* La sérialisation de texte peut ne pas être aussi efficace pour les données complexes ou volumineuses, car elle peut
+- La sérialisation de texte peut ne pas être aussi efficace pour les données complexes ou volumineuses, car elle peut
   nécessiter plus de temps et de ressources pour être traitée.
-* La sérialisation de texte n'est pas lisible par l'homme, ce qui peut rendre le débogage et la maintenance plus
+- La sérialisation de texte n'est pas lisible par l'homme, ce qui peut rendre le débogage et la maintenance plus
   difficiles.
-* La sérialisation de texte peut être plus difficile à transférer entre différentes plateformes et systèmes
+- La sérialisation de texte peut être plus difficile à transférer entre différentes plateformes et systèmes
   d'exploitation, car elle peut nécessiter des conversions de format ou de codage des caractères.
 
 Elle a donc surtout l'avantage d'être **lisible par les humains**.
@@ -142,3 +142,70 @@ Malgré ses avantages, la sérialisation présente aussi des défis.
 - La sérialisation peut également poser des problèmes de compatibilité des versions : si la structure de l'objet est
   modifiée entre la sérialisation et la désérialisation, il peut être difficile de reconstruire l’objet correctement.
 
+---
+
+## Sérialisation et constructeurs particuliers
+
+Lorsqu’une classe possède **plusieurs constructeurs**, ou un **constructeur qui ne prend pas tous les paramètres**, le désérialiseur (par exemple `System.Text.Json`) doit savoir **comment recréer l’objet** à partir du JSON.
+
+Par défaut, le désérialiseur :
+
+- utilise un **constructeur sans paramètre**, s’il existe, puis assigne les propriétés publiques ;
+- sinon, il cherche un **constructeur dont les paramètres correspondent exactement aux noms des propriétés** du JSON.
+
+Exemple :
+
+```csharp
+public class Person
+{
+    public string Name { get; }
+    public int Age { get; }
+
+    // Constructeur spécifique
+    public Person(string name)
+    {
+        Name = name;
+        Age = 0; // valeur par défaut
+    }
+
+    // Constructeur complet
+    [JsonConstructor]
+    public Person(string name, int age)
+    {
+        Name = name;
+        Age = age;
+    }
+}
+```
+
+Ici, la décoration `[JsonConstructor]` indique explicitement au désérialiseur **quel constructeur utiliser** lors de la désérialisation.  
+Sans cet attribut, il pourrait choisir le mauvais constructeur ou échouer si aucun ne correspond aux données.
+
+---
+
+## Exclure des champs de la sérialisation
+
+Il arrive qu’une classe contienne des informations **sensibles** (mot de passe, jeton d’authentification, clé API, etc.) qu’on ne veut pas inclure dans la sérialisation.  
+En C#, on peut facilement exclure une propriété grâce à la décoration `[JsonIgnore]`.
+
+Exemple :
+
+```csharp
+public class UserAccount
+{
+    public string UserName { get; set; }
+
+    [JsonIgnore]
+    public string Password { get; set; } // Ne sera pas sérialisé
+}
+```
+
+Lors de la sérialisation :
+
+```json
+{
+  "UserName": "alice"
+}
+```
+
+La propriété `Password` est absente du JSON — elle est ignorée à la fois à la sérialisation **et** à la désérialisation.
