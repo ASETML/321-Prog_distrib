@@ -8,7 +8,7 @@
 
 ## Pratique
 
-- [Footchat](../activites/footchat/README.md)
+- Faire un chat de classe, genre [Footchat](../activites/footchat/README.md)
 
 ### Powercher
 
@@ -23,13 +23,13 @@
 - Recevoir les messages de Mère nature
 - Afficher l'heure diffusée
 
-#### Catalogue
-- Contribuer au [catalogue d'appareils électriques](../activites/powercher_catalog/README.md)
-
+#### Commencer à construire
 - Poser les bases de votre maison
   - Dans le projet Frontend, créez une copie du formulaire `HouseUI` 
   - Renommez cette copie `HouseUI_xxx` où `xxx` sont vos initiales
   - Modifiez `BootstrapUI` pour ouvrir votre maison
+  - Equipez-la d'appareils consommateurs
+  - Calculez le bilan énergétique
 
 #### Advanced Powercher
 En s’aidant du dépôt de la [librairie MQTTNet](https://github.com/dotnet/MQTTnet/tree/master), améliorer

@@ -382,7 +382,7 @@ Lorsque le microservice reçoit un message décrivant l'environnement d'une vill
     - Cet identifiant permet de détecter si un message a déjà été traité par le consommateur.
 
 2. **Vérification de l'idempotence côté consommateur**
-   Lors de la réception d'un message, vous pouvez utiliser une base de données ou un cache pour stocker les `MessageId`
+   Lors de la réception d'un message, on peut utiliser une base de données ou un cache pour stocker les `MessageId`
    déjà traités. Exemple en C# :
    ```csharp
    private static readonly HashSet<string> ProcessedMessages = new();

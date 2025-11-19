@@ -17,7 +17,7 @@ au système de fichier dans lequel on stockerait les `ids` déjà traités...
 Bref, il est pertinent de s'entraîner à gérer un système faillible `à la main` et c'est la mission qui vous est confiée.
 
 ## Contexte
-Vous devez donc remplacer la classe `NonResilientPublisher` du projet [transat](https://github.com/jonathanMelly/transat)
+Vous devez donc dupliquer la classe `NonResilientPublisher` du projet [transat](https://github.com/jonathanMelly/transat) et la nommer `ResilientPublisher`
 sans toucher au `storage` ou au `programme principal` afin que celui rapporte un 100% de réussite.
 
 ## Livraison
