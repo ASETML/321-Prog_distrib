@@ -2,8 +2,8 @@
 
 ## Théorie
 
-[Explications](../supports/Puissance%20et%20énergie.md)
-[Kahoot recap](https://create.kahoot.it/details/869bfcbc-6e29-414a-82eb-8764bef04efd)
+- [Explications](../supports/Puissance%20et%20énergie.md)
+- [Kahoot recap](https://create.kahoot.it/details/869bfcbc-6e29-414a-82eb-8764bef04efd)
 
 ## Pratique
 
