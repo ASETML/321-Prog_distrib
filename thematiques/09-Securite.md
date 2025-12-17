@@ -12,6 +12,7 @@ Malgré les opportunités présentées dans l’image, nous allons nous limiter 
 ## Théorie 📖
 - [Confidentialité](../supports/confidentialite.md)
 - [Réseau de confiance](../supports/reseau-confiance.md)
+- [Kahoot confidentialité/confiance](https://create.kahoot.it/share/321-confidentialite-confiance/9fdf010f-682c-42c5-bc7e-2188d553bebd)
 
 ## Pratique 👷
 

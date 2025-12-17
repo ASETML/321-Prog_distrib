@@ -1,0 +1,171 @@
+digraph ArchitecturePowercher {
+    rankdir=TB;
+    node [shape=box, style=rounded];
+
+    // Définir le schéma de couleurs
+    graph [fontname="Arial", fontsize=10];
+    node [fontname="Arial", fontsize=9];
+    edge [fontname="Arial", fontsize=8];
+
+    // Couche Interface Utilisateur
+    subgraph cluster_ui {
+        label="Couche Interface Utilisateur (Frontend)";
+        style=filled;
+        color=lightblue;
+
+        PowerWatchUI [label="PowerWatchUI\n(??? 1 ???)", shape=component, fillcolor=lightyellow, style=filled];
+        HouseUI [label="HouseUI\n(Nœud Maison)", shape=component, fillcolor=lightgreen, style=filled];
+        MotherNatureUI [label="MotherNatureUI\n(??? 2 ???)", shape=component, fillcolor=lightcyan, style=filled];
+        PowerDealUI [label="PowerDealUI\n(Commerce Énergie)", shape=component, fillcolor=lightpink, style=filled];
+    }
+
+    // Couche Agent
+    subgraph cluster_agent {
+        label="Couche Agent (Hub de Messagerie)";
+        style=filled;
+        color=wheat;
+
+        Agent [label="Agent\n- Registre des nœuds\n- ??? 3 ???(Envelope)\n- Start/Stop\n- Statistiques", shape=box3d, fillcolor=gold, style=filled];
+    }
+
+    // Couche Protocole
+    subgraph cluster_protocol {
+        label="Couche Protocole (Structure des Messages)";
+        style=filled;
+        color=lavender;
+
+        Envelope [label="Envelope (Enveloppe)\n- Id (??? 4 ???)\n- SenderId (Émetteur)\n- RecipientId (Destinataire)\n- ??? 5 ??? (Type)\n- Message (JSON)\n- Idempotent", shape=note, fillcolor=white, style=filled];
+
+        MessageTypes [label="MessageType\n- HELLO (??? 6 ???)\n- GOOD_BYE (Au revoir)\n- TIME_SYNC (Synchro temps)\n- ??? 7 ??? (Environnement)\n- HOUSE_STATUS (État maison)\n- HOUSE_STATUS_REQUEST (??? 8 ???)\n- MEDIA_STATUS\n- MEDIA_STATUS_REQUEST\n- CASH (Transaction argent)\n- POWER (??? 9 ???)", shape=folder, fillcolor=lightyellow, style=filled];
+    }
+
+    // Couche Communication
+    subgraph cluster_communicator {
+        label="Couche Communication (Transport)";
+        style=filled;
+        color=lightgray;
+
+        ICommunicator [label="ICommunicator\n- Start()\n- Stop()\n- Send(Envelope)\n- ??? 10 ???", shape=ellipse, fillcolor=white, style=filled];
+
+        MQTTComm [label="MQTTCommunicator\n- Courtier: localhost:??? 11 ???\n- Topic: '??? 12 ???'\n- QoS: AtLeastOnce\n- Thread d'écoute", shape=box, fillcolor=lightgreen, style="filled,bold"];
+
+        UDPComm [label="UDPCommunicator\n- Ports: ??? 13 ???\n- Loopback/Broadcast\n- Thread d'écoute\n[DÉSACTIVÉ]", shape=box, fillcolor=lightcoral, style="filled,dashed"];
+    }
+
+    // Couche Réseau
+    subgraph cluster_network {
+        label="Couche Réseau";
+        style=filled;
+        color=lightsteelblue;
+
+        MQTTBroker [label="Courtier MQTT\n(Hub ??? 14 ???/??? 15 ???)", shape=cylinder, fillcolor=steelblue, style=filled, fontcolor=white];
+
+        NetworkStack [label="Pile Réseau\n(??? 16 ???/IP, UDP)", shape=cylinder, fillcolor=navy, style=filled, fontcolor=white];
+    }
+
+    // Modèle de Threading
+    subgraph cluster_threading {
+        label="Modèle de Threads";
+        style=filled;
+        color=mistyrose;
+
+        ListenThread [label="Thread d'Écoute\nTask.Run(() => ??? 17 ???())\n- Boucle réception asynchrone\n- CancellationToken\n- Callback OnMessageReceived", shape=parallelogram, fillcolor=pink, style=filled];
+
+        SendThread [label="Opérations d'Envoi\nAgent.??? 18 ???()\n- Publication synchrone\n- Sérialisation Envelope\n- Suivi statistiques", shape=parallelogram, fillcolor=lightcoral, style=filled];
+    }
+
+    // Chiffrement
+    subgraph cluster_encryption {
+        label="Chiffrement Optionnel";
+        style=filled;
+        color=honeydew;
+
+        Encryption [label="PowerCrypt.EncryptionHelper\n- ??? 19 ??? avant envoi\n- ??? 20 ??? après réception", shape=diamond, fillcolor=lightgreen, style=filled];
+    }
+
+    // Connexions UI vers Agent
+    PowerWatchUI -> Agent [label="Envoi/Réception", style=bold, color=blue];
+    HouseUI -> Agent [label="??? 21 ???/??? 22 ???", style=bold, color=green];
+    MotherNatureUI -> Agent [label="Envoi", style=bold, color=cyan];
+    PowerDealUI -> Agent [label="Envoi/Réception", style=bold, color=red];
+
+    // Agent vers Protocole
+    Agent -> Envelope [label="Créer/Parser", style=dashed, color=purple];
+    Envelope -> MessageTypes [label="Utilise", style=dotted];
+
+    // Agent vers Communicator
+    Agent -> ICommunicator [label="Utilise", style=bold, color=brown];
+    ICommunicator -> MQTTComm [label="implémente", style=dashed, arrowhead=empty];
+    ICommunicator -> UDPComm [label="implémente", style=dashed, arrowhead=empty];
+
+    // Communicator vers Chiffrement
+    MQTTComm -> Encryption [label="Optionnel", style=dotted, color=green];
+    UDPComm -> Encryption [label="Optionnel", style=dotted, color=green];
+
+    // Communicator vers Réseau
+    MQTTComm -> MQTTBroker [label="??? 23 ???/??? 24 ???\nPort TCP 1883", style=bold, color=darkgreen];
+    UDPComm -> NetworkStack [label="Multicast UDP\nPorts 12000-12020", style=dashed, color=gray];
+    MQTTBroker -> NetworkStack [label="Utilise", style=solid];
+
+    // Connexions Threading
+    MQTTComm -> ListenThread [label="Démarre", style=bold, color=red];
+    UDPComm -> ListenThread [label="Démarre", style=dashed, color=gray];
+    ListenThread -> Agent [label="Callback\nOnMessageReceived", style=bold, color=orange];
+
+    Agent -> SendThread [label="Initie", style=bold, color=purple];
+    SendThread -> MQTTComm [label="Send(Envelope)", style=bold, color=purple];
+
+    // Flux de messages (workflow)
+    subgraph cluster_workflow {
+        label="Exemple de Flux: Mise à Jour État Maison";
+        style=filled;
+        color=lightyellow;
+
+        Step1 [label="1. PowerWatchUI envoie\n??? 25 ???", shape=plaintext];
+        Step2 [label="2. Agent sérialise Envelope\nen ??? 26 ???", shape=plaintext];
+        Step3 [label="3. MQTTCommunicator publie\nsur topic 'powercher'", shape=plaintext];
+        Step4 [label="4. Courtier MQTT distribue\naux ??? 27 ???", shape=plaintext];
+        Step5 [label="5. Thread d'écoute HouseUI\nreçoit le message", shape=plaintext];
+        Step6 [label="6. Agent désérialise\net callback vers UI", shape=plaintext];
+        Step7 [label="7. HouseUI envoie\nréponse ??? 28 ???", shape=plaintext];
+        Step8 [label="8. PowerWatchUI reçoit\net met à jour l'affichage", shape=plaintext];
+
+        Step1 -> Step2 -> Step3 -> Step4 -> Step5 -> Step6 -> Step7 -> Step8 [style=dotted, color=blue];
+    }
+
+    // Workflow décortication d'enveloppe
+    subgraph cluster_decortication {
+        label="Décortication de l'Enveloppe (Incoming)";
+        style=filled;
+        color=lightgreen;
+
+        Recv1 [label="Réception ??? 29 ??? réseau", shape=plaintext];
+        Recv2 [label="Décodage ??? 30 ??? → string", shape=plaintext];
+        Recv3 [label="Envelope.??? 31 ???()\nDésérialisation", shape=plaintext];
+        Recv4 [label="Extraction MessageType\n(switch/pattern match)", shape=plaintext];
+        Recv5 [label="Désérialisation Message\n(??? 32 ???)", shape=plaintext];
+        Recv6 [label="Mise à jour modèle local\n(House, Transaction, etc.)", shape=plaintext];
+        Recv7 [label="Rafraîchissement UI", shape=plaintext];
+
+        Recv1 -> Recv2 -> Recv3 -> Recv4 -> Recv5 -> Recv6 -> Recv7 [style=bold, color=darkgreen];
+    }
+
+    // Workflow création d'enveloppe
+    subgraph cluster_creation {
+        label="Création de l'Enveloppe (Outgoing)";
+        style=filled;
+        color=lightcoral;
+
+        Send1 [label="Événement UI\n(clic, timer, etc.)", shape=plaintext];
+        Send2 [label="Sérialisation objet domaine\n??? 33 ???()", shape=plaintext];
+        Send3 [label="new Envelope(senderId,\ntype, message, ??? 34 ???)", shape=plaintext];
+        Send4 [label="Envelope.??? 35 ???()\nSérialisation complète", shape=plaintext];
+        Send5 [label="Chiffrement optionnel\n(EncryptionHelper)", shape=plaintext];
+        Send6 [label="Publication MQTT\n(??? 36 ???)", shape=plaintext];
+        Send7 [label="Transmission réseau\nTCP/IP", shape=plaintext];
+
+        Send1 -> Send2 -> Send3 -> Send4 -> Send5 -> Send6 -> Send7 [style=bold, color=darkred];
+    }
+
+
+}
